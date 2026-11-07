@@ -21,7 +21,7 @@ rules:
     key: trade_id
     failure_condition: currency IS NULL OR currency NOT IN ('USD', 'EUR', 'GBP', 'JPY')
   
-  - id: VALID_STATUS
+  - id: INVALID_STATUS
     source: workspace.silver.trades
     key: trade_id
     failure_condition: status IS NULL OR status NOT IN ('NEW', 'CANCEL', 'AMEND')
