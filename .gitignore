@@ -1,0 +1,10 @@
+# Generated data, including the defect answer key (data/manifest/)
+data/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
