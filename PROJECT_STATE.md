@@ -37,12 +37,14 @@ Also meant to line up with a 6-9 year pipeline engineering job description.
 | Data quality rules run on | `silver.trades`, not `trades_latest` | `trades_latest` hides defects on earlier events |
 | Interview scope | Hands-on: Phase 1 essentials, small Phase 2, short labs. Theory: Azure, ADF, tuning, cost, AI layers | Full plan is too large for the deadline; a discussion rewards explainable understanding |
 | Azure before the interview | None | Avoids spend and starting the trial clock |
+| Added to interview scope | Asset Bundle lab to a `dev` target; small agent over Gold | Owner wants agentic AI hands-on; the JD covers CI/CD and data for AI |
+| Way of working | Owner reads and predicts, writes part of each lab, and answers before moving on | Running code and matching numbers wasn't building understanding |
 
 ## Status
 - [x] Phase 0 code written: generator, bronze notebook, README
 - [x] Phase 0 run: generator run on Mac, files uploaded to the landing volume, bronze tables created, checkpoint questions answered
-- [~] Phase 1: Silver trades, latest status and Silver ledger done; Gold done; `MERGE` lab done; tests and CI written but not yet run. Asset Bundle deferred.
-- [ ] Small data quality framework (reduced Phase 2)
+- [x] Phase 1 essentials: Silver trades, latest status and Silver ledger done; Gold done; `MERGE` lab, tests and CI done and merged. Asset Bundle deferred.
+- [x] Small data quality framework (reduced Phase 2): 61 of 61 defects caught, 3 of 3 reconciliation checks pass. Branch `phase-2-dq`, not yet merged.
 - [ ] Phases 3-7: paused until after the interview; covered by labs and theory in LEARNING_TRACKER.md
 
 Bronze row counts (`--days 3 --trades-per-day 2000`): trades_raw 6,597 (6,280 distinct trade_id), ledger_entries_raw 27,114, instruments_raw 200, counterparties_raw 50, gl_accounts_raw 4.
@@ -59,6 +61,10 @@ Bronze row counts (`--days 3 --trades-per-day 2000`): trades_raw 6,597 (6,280 di
 - `stage-1/src/transforms.py` - tested Silver transformations
 - `stage-1/tests/` - pytest tests, run in GitHub Actions
 - `.github/workflows/tests.yml` - runs the tests on pull requests and pushes to main
+- `stage-2/rules/dq_rules.yml` - data quality rules and reconciliation checks
+- `stage-2/src/dq_framework.py` - runs the rules; has no per-table code
+- `stage-2/notebooks/06_dq_framework.py` - writes `silver.quarantine` and `gold.dq_recon_report`
+- `stage-2/scripts/check_against_manifest.py` - compares the quarantine with the answer key on the Mac
 - `LEARNING_TRACKER.md` - interview plan, hands-on checklist and JD coverage
 - `stage-0/data/manifest/injected_defects.csv` - answer key for planted bad records. Never upload to Databricks.
 
@@ -71,6 +77,7 @@ Phase 2 DQ rules must catch all of them.
 - No Java on the Mac, so PySpark tests run only in GitHub Actions.
 - Notebooks still have their own copies of the logic in `stage-1/src/transforms.py`. So tests prove the module, not the notebooks, until the notebooks import it.
 - Pushing workflow files needs a GitHub token with the `workflow` scope.
+- The `MERGE` lab only detects changes in 4 columns, so a change to another column such as `desk` would not update the row.
 - `gold.daily_desk_summary` still contains bad rows (`XXX` currency, negative quantities) until the data quality framework exists.
 - What does "Avery reporting" in the job description refer to?
 
@@ -88,6 +95,9 @@ Phase 1 so far:
 - `dropDuplicates` keeps an arbitrary row, so it's only safe for true duplicates. Deduping on `trade_id` alone removed lifecycle rows and hid defects with no error.
 - A window (`partitionBy` + `orderBy` + `row_number`) does what Sort + Dedup Sorted does, and keeps every row until you filter.
 - `trades_latest` shows 3 negative quantities while the history has 6, so data quality checks belong on the full history.
+- Data quality rules come in two kinds: row-level conditions (like Filter by Expression) and set-level queries that need aggregation or joins (like Rollup or Join).
+- A check can pass by looking in the wrong place: duplicate detection must run on bronze, because Silver has already removed them.
+- The rule summary hides rules with 0 failures, so it can't show the difference between "passed" and "never ran".
 - `MERGE` is idempotent here: rerunning a batch inserted 0 and updated 0 rows, and a correction updated exactly 1.
 - Silver ledger control total: 7,806.44 difference = 6,306.44 from unbalanced journals + 1,500.00 from orphans.
 

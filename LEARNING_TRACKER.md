@@ -8,8 +8,19 @@ Start a new chat with: "Continuing ledger-lakehouse. Read LEARNING_TRACKER.md an
 **Key:** `[x]` done, `[ ]` to do, `[~]` started or needs confirming. Tick an item only when it has been run or practised.
 Time estimates are rough.
 
+## How we work
+Matching numbers shows the code works, not that you understand it. So for each lab:
+- Read the code first and say what you expect it to do.
+- Write part of it yourself.
+- Answer the step's question before moving on.
+
+## Self-test (answer without looking)
+- [x] What does `MERGE` do, and why is rerunning a batch safe?
+- [x] Why does the dedup key include `status` and `trade_ts`?
+- [x] What does a CI run do on a pull request, and what did your failed run prove?
+
 ## Current focus
-Push `phase-1-silver`, open a pull request and get the tests passing in GitHub Actions.
+Saturday's list is done. Next: commit the tracker updates, merge `phase-2-dq`, then start Sunday with the Declarative Pipeline lab.
 
 ## Saturday 2026-11-07: hands-on (about 5-7 hours)
 
@@ -17,7 +28,7 @@ Push `phase-1-silver`, open a pull request and get the tests passing in GitHub A
 - [x] Generate data and upload it to the landing volume
 - [x] Load 5 bronze tables; row counts match the source files
 - [x] Answer the 3 checkpoint questions
-- [~] Find all 6 planted defect types with SQL (4 confirmed; confirm 15 orphans and the semi join's 13 unbalanced journals)
+- [x] Find all 6 planted defect types (confirmed by the framework: 61 of 61 caught)
 - [x] Commit, push, open a pull request and merge to `main`
 
 ### Phase 1: Silver and Gold
@@ -29,17 +40,20 @@ Branch: `phase-1-silver`. Notebooks are in `stage-1/notebooks/`.
 - [x] `03_silver_ledger`: write it yourself (difference 7,806.44)
 - [x] `04_gold_daily_desk_summary`: results match the expected table
 - [x] Incremental load with `MERGE`: `05_incremental_merge_lab` results match, and a rerun changes nothing
-- [~] A few pytest tests: written, first run will be in GitHub Actions
-- [~] GitHub Actions running the tests on a pull request: workflow written, not yet run
-- [ ] Commit, push and merge `phase-1-silver`
+- [x] A few pytest tests: 6 tests passing in GitHub Actions
+- [x] GitHub Actions on pull requests: saw a deliberate failure caught, then a pass after reverting
+- [x] Commit, push and merge `phase-1-silver`
 
 ### Small data quality framework (reduced Phase 2)
-- [ ] YAML rules, with no per-table code
-- [ ] Quarantine table with a reason for each row
-- [ ] Reconciliation report
-- [ ] Check every planted defect is caught, using the manifest as the answer key
+Branch: `phase-2-dq`. Code is in `stage-2/`. Runs from a Databricks Git folder; CI passes.
+- [x] YAML rules, with no per-table code
+- [x] Quarantine table with a reason for each row
+- [x] Reconciliation report: 3 of 3 checks pass, including the 7,806.44 ledger imbalance
+- [x] Check every planted defect is caught: 61 planted, 61 caught, 0 missed, 0 extra
+- [x] Design and add new rules yourself: invalid `side` and `status`, keyed on `trade_id` and catching NULLs
+- [ ] Merge `phase-2-dq`
 
-## Sunday 2026-11-08: labs, theory and practice (about 5-6 hours)
+## Sunday 2026-11-08: labs, theory and practice (about 7-9 hours)
 
 ### Hands-on labs
 Check each lab runs on Free Edition first. If it doesn't, cover it as theory instead.
@@ -48,15 +62,24 @@ Check each lab runs on Free Edition first. If it doesn't, cover it as theory ins
 - [ ] Profiling, overlap query and a short source-to-target mapping (45 min)
 - [ ] Read an `EXPLAIN` or query profile for a join (30 min)
 - [ ] Convert a small made-up Ab Initio transform to PySpark with Claude, plus a test (30 min)
+- [ ] Asset Bundle: deploy one notebook as a job to a `dev` target (45 min)
+- [ ] Agent over Gold (90 min), after checking what Free Edition allows; ask before anything that costs money
+  - [ ] Add table and column comments (context layer)
+  - [ ] Define metrics such as notional and live trade count (semantic layer)
+  - [ ] Build a read-only agent
+  - [ ] Test it with a fixed set of questions with known answers
+- [ ] Optional: connect VS Code with the Databricks extension (30 min). Drop this first if time is short, then shrink the conversion lab.
 
 ### Theory (60-90 min)
 - [ ] ADF compared with Workflows and Control>Center
 - [ ] Azure: ADLS, access connectors, external locations, Unity Catalog
 - [ ] Spark tuning: skew, small files, AQE, liquid clustering
 - [ ] Cost control: what drives cost and how to monitor it
-- [ ] Semantic layer, context layer, knowledge graph, agents
+- [ ] Knowledge graph, and how it relates to the semantic and context layers
 - [ ] Databricks compared with Snowflake
 - [ ] dbt compared with Declarative Pipelines
+- [ ] Promotion path: pull request, tests, merge, deploy to dev, promote to prod (design only; Free Edition has no separate prod)
+- [ ] Databricks Connect: when you'd use it
 
 ### Interview practice (60-90 min)
 - [ ] Project story, 2-minute version
@@ -73,13 +96,13 @@ Check each lab runs on Free Edition first. If it doesn't, cover it as theory ins
 | ADF | Comparison with Workflows | Theory | To do |
 | Databricks Workflows | Workflows lab | Lab | To do |
 | Snowflake | Comparison with Databricks | Theory | To do |
-| Reusable ingestion, DQ and reconciliation frameworks | Small data quality framework | Hands-on | To do |
+| Reusable ingestion, DQ and reconciliation frameworks | Small data quality framework | Hands-on | Done (DQ and reconciliation; ingestion not made generic) |
 | Profiling, overlap, source-to-target mapping | Profiling lab | Lab | To do |
 | Spark tuning | Query plan lab, tuning theory | Lab and theory | To do |
 | Cost control | Cost theory | Theory | To do |
-| CI/CD and automated testing | pytest and GitHub Actions | Hands-on | To do |
+| CI/CD and automated testing | pytest and GitHub Actions; Asset Bundle lab; prod promotion as design | Hands-on and theory | Tests done, deployment to do |
 | BI semantic models and SQL layers | Gold table, semantic layer theory | Hands-on and theory | Started |
-| Semantic layer, context layer, knowledge graph | Theory, using project tables | Theory | To do |
+| Semantic layer, context layer, knowledge graph | Agent lab for the first two; knowledge graph as theory | Lab and theory | To do |
 | GenAI for code conversion, tests and docs | Conversion lab | Lab | To do |
 
 ## Out of scope before the interview
@@ -98,6 +121,9 @@ It is not production Azure experience. For anything covered only as theory, say 
 | Hidden defects | `trades_latest` shows 3 negative quantities, but the history has 6 | Run data quality checks on the full history |
 | 28 vs 13 | The imbalance query returned 28 trades: 13 unbalanced journals plus 15 orphans | Separate the causes; the 7,806.44 difference is fully explained |
 | Safe reruns | Rerunning a batch through `MERGE` inserted 0 and updated 0 rows; a correction updated exactly 1 | Idempotent loads make failed jobs safe to restart |
+| CI catches a real bug | Changing the dedup key to `trade_id` turned the pull request red; reverting it turned it green | Tests encode what you've learned, so the mistake can't return unnoticed |
+| Every defect caught | YAML-driven rules quarantined 61 of 61 planted defects; the ledger imbalance reconciled to the cent | Prove a framework against a known answer key |
+| A passing rule disappears | Rules with 0 failures didn't appear in the summary, so you can't tell "passed" from "never ran" | Report every rule, including zero counts |
 | Strings in bronze | Bronze keeps raw strings; Silver uses `try_cast` and counts failures | Capture must not fail or silently lose values |
 
 ## Questions to resolve
@@ -108,4 +134,4 @@ It is not production Azure experience. For anything covered only as theory, say 
 | Date | What happened |
 |---|---|
 | 2026-11-06 | Accounts and Phase 0 code set up |
-| 2026-11-07 | Phase 0 finished and merged. Silver trades, latest status and Silver ledger built. Plan changed for the interview. |
+| 2026-11-07 | Phase 0 finished and merged. Silver trades, latest status and Silver ledger built. Plan changed for the interview. Gold, `MERGE`, tests and CI finished and merged. Data quality framework run in Databricks: 61 of 61 defects caught, 3 of 3 reconciliation checks passed. |

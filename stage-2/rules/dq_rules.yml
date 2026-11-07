@@ -1,0 +1,79 @@
+# Add or change a check here. The framework needs no new code.
+# A rule uses either failure_condition (with key) for row checks, or query for set-level checks.
+# A query must return one column named record_key.
+
+quarantine_table: workspace.silver.quarantine
+report_table: workspace.gold.dq_recon_report
+
+rules:
+  - id: NULL_COUNTERPARTY
+    source: workspace.silver.trades
+    key: trade_id
+    failure_condition: counterparty_id IS NULL
+
+  - id: NEGATIVE_QTY
+    source: workspace.silver.trades
+    key: trade_id
+    failure_condition: quantity < 0
+
+  - id: BAD_CURRENCY
+    source: workspace.silver.trades
+    key: trade_id
+    failure_condition: currency IS NULL OR currency NOT IN ('USD', 'EUR', 'GBP', 'JPY')
+  
+  - id: INVALID_STATUS
+    source: workspace.silver.trades
+    key: trade_id
+    failure_condition: status IS NULL OR status NOT IN ('NEW', 'CANCEL', 'AMEND')
+
+  - id: INVALID_SIDE
+    source : workspace.silver.trades
+    key: trade_id
+    failure_condition: side IS NULL OR side NOT IN ('BUY', 'SELL')
+
+  # Runs on bronze because Silver has already removed these rows.
+  - id: DUPLICATE_TRADE
+    source: workspace.bronze.trades_raw
+    query: |
+      SELECT trade_id AS record_key
+      FROM workspace.bronze.trades_raw
+      GROUP BY trade_id, trade_ts, status
+      HAVING count(*) > 1
+
+  - id: UNBALANCED_JOURNAL
+    source: workspace.silver.ledger_entries
+    query: |
+      SELECT l.trade_id AS record_key
+      FROM workspace.silver.ledger_entries l
+      LEFT SEMI JOIN workspace.silver.trades t ON l.trade_id = t.trade_id
+      GROUP BY l.trade_id
+      HAVING sum(l.debit) <> sum(l.credit)
+
+  - id: ORPHAN_JOURNAL
+    source: workspace.silver.ledger_entries
+    query: |
+      SELECT DISTINCT l.trade_id AS record_key
+      FROM workspace.silver.ledger_entries l
+      LEFT ANTI JOIN workspace.silver.trades t ON l.trade_id = t.trade_id
+
+# Each check runs two single-value queries and compares the answers.
+reconciliation:
+  - name: trade_rows_bronze_vs_silver_plus_duplicates
+    left: SELECT count(*) FROM workspace.bronze.trades_raw
+    right: |
+      SELECT (SELECT count(*) FROM workspace.silver.trades)
+           + (SELECT count(*) FROM workspace.silver.quarantine WHERE rule_id = 'DUPLICATE_TRADE')
+
+  - name: ledger_rows_bronze_vs_silver
+    left: SELECT count(*) FROM workspace.bronze.ledger_entries_raw
+    right: SELECT count(*) FROM workspace.silver.ledger_entries
+
+  - name: ledger_imbalance_explained_by_quarantined_journals
+    left: SELECT sum(debit) - sum(credit) FROM workspace.silver.ledger_entries
+    right: |
+      SELECT sum(debit) - sum(credit)
+      FROM workspace.silver.ledger_entries
+      WHERE trade_id IN (
+        SELECT record_key FROM workspace.silver.quarantine
+        WHERE rule_id IN ('UNBALANCED_JOURNAL', 'ORPHAN_JOURNAL')
+      )
