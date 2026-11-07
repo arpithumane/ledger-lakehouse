@@ -44,7 +44,7 @@ Also meant to line up with a 6-9 year pipeline engineering job description.
 - [x] Phase 0 code written: generator, bronze notebook, README
 - [x] Phase 0 run: generator run on Mac, files uploaded to the landing volume, bronze tables created, checkpoint questions answered
 - [x] Phase 1 essentials: Silver trades, latest status and Silver ledger done; Gold done; `MERGE` lab, tests and CI done and merged. Asset Bundle deferred.
-- [~] Small data quality framework (reduced Phase 2): written on branch `phase-2-dq`, not yet run in Databricks
+- [x] Small data quality framework (reduced Phase 2): 61 of 61 defects caught, 3 of 3 reconciliation checks pass. Branch `phase-2-dq`, not yet merged.
 - [ ] Phases 3-7: paused until after the interview; covered by labs and theory in LEARNING_TRACKER.md
 
 Bronze row counts (`--days 3 --trades-per-day 2000`): trades_raw 6,597 (6,280 distinct trade_id), ledger_entries_raw 27,114, instruments_raw 200, counterparties_raw 50, gl_accounts_raw 4.
@@ -95,6 +95,9 @@ Phase 1 so far:
 - `dropDuplicates` keeps an arbitrary row, so it's only safe for true duplicates. Deduping on `trade_id` alone removed lifecycle rows and hid defects with no error.
 - A window (`partitionBy` + `orderBy` + `row_number`) does what Sort + Dedup Sorted does, and keeps every row until you filter.
 - `trades_latest` shows 3 negative quantities while the history has 6, so data quality checks belong on the full history.
+- Data quality rules come in two kinds: row-level conditions (like Filter by Expression) and set-level queries that need aggregation or joins (like Rollup or Join).
+- A check can pass by looking in the wrong place: duplicate detection must run on bronze, because Silver has already removed them.
+- The rule summary hides rules with 0 failures, so it can't show the difference between "passed" and "never ran".
 - `MERGE` is idempotent here: rerunning a batch inserted 0 and updated 0 rows, and a correction updated exactly 1.
 - Silver ledger control total: 7,806.44 difference = 6,306.44 from unbalanced journals + 1,500.00 from orphans.
 

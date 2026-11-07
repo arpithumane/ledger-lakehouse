@@ -20,7 +20,7 @@ Matching numbers shows the code works, not that you understand it. So for each l
 - [x] What does a CI run do on a pull request, and what did your failed run prove?
 
 ## Current focus
-Read and run the data quality framework (`stage-2/notebooks/06_dq_framework.py`) from a Databricks Git folder.
+Saturday's list is done. Next: commit the tracker updates, merge `phase-2-dq`, then start Sunday with the Declarative Pipeline lab.
 
 ## Saturday 2026-11-07: hands-on (about 5-7 hours)
 
@@ -28,7 +28,7 @@ Read and run the data quality framework (`stage-2/notebooks/06_dq_framework.py`)
 - [x] Generate data and upload it to the landing volume
 - [x] Load 5 bronze tables; row counts match the source files
 - [x] Answer the 3 checkpoint questions
-- [~] Find all 6 planted defect types with SQL (4 confirmed; confirm 15 orphans and the semi join's 13 unbalanced journals)
+- [x] Find all 6 planted defect types (confirmed by the framework: 61 of 61 caught)
 - [x] Commit, push, open a pull request and merge to `main`
 
 ### Phase 1: Silver and Gold
@@ -45,12 +45,13 @@ Branch: `phase-1-silver`. Notebooks are in `stage-1/notebooks/`.
 - [x] Commit, push and merge `phase-1-silver`
 
 ### Small data quality framework (reduced Phase 2)
-Branch: `phase-2-dq`. Code is in `stage-2/`; written but not yet run.
-- [ ] YAML rules, with no per-table code
-- [ ] Quarantine table with a reason for each row
-- [ ] Reconciliation report
-- [ ] Check every planted defect is caught, using the manifest as the answer key
-- [ ] Design and add one new rule to the YAML yourself
+Branch: `phase-2-dq`. Code is in `stage-2/`. Runs from a Databricks Git folder; CI passes.
+- [x] YAML rules, with no per-table code
+- [x] Quarantine table with a reason for each row
+- [x] Reconciliation report: 3 of 3 checks pass, including the 7,806.44 ledger imbalance
+- [x] Check every planted defect is caught: 61 planted, 61 caught, 0 missed, 0 extra
+- [x] Design and add new rules yourself: invalid `side` and `status`, keyed on `trade_id` and catching NULLs
+- [ ] Merge `phase-2-dq`
 
 ## Sunday 2026-11-08: labs, theory and practice (about 7-9 hours)
 
@@ -95,7 +96,7 @@ Check each lab runs on Free Edition first. If it doesn't, cover it as theory ins
 | ADF | Comparison with Workflows | Theory | To do |
 | Databricks Workflows | Workflows lab | Lab | To do |
 | Snowflake | Comparison with Databricks | Theory | To do |
-| Reusable ingestion, DQ and reconciliation frameworks | Small data quality framework | Hands-on | To do |
+| Reusable ingestion, DQ and reconciliation frameworks | Small data quality framework | Hands-on | Done (DQ and reconciliation; ingestion not made generic) |
 | Profiling, overlap, source-to-target mapping | Profiling lab | Lab | To do |
 | Spark tuning | Query plan lab, tuning theory | Lab and theory | To do |
 | Cost control | Cost theory | Theory | To do |
@@ -121,6 +122,8 @@ It is not production Azure experience. For anything covered only as theory, say 
 | 28 vs 13 | The imbalance query returned 28 trades: 13 unbalanced journals plus 15 orphans | Separate the causes; the 7,806.44 difference is fully explained |
 | Safe reruns | Rerunning a batch through `MERGE` inserted 0 and updated 0 rows; a correction updated exactly 1 | Idempotent loads make failed jobs safe to restart |
 | CI catches a real bug | Changing the dedup key to `trade_id` turned the pull request red; reverting it turned it green | Tests encode what you've learned, so the mistake can't return unnoticed |
+| Every defect caught | YAML-driven rules quarantined 61 of 61 planted defects; the ledger imbalance reconciled to the cent | Prove a framework against a known answer key |
+| A passing rule disappears | Rules with 0 failures didn't appear in the summary, so you can't tell "passed" from "never ran" | Report every rule, including zero counts |
 | Strings in bronze | Bronze keeps raw strings; Silver uses `try_cast` and counts failures | Capture must not fail or silently lose values |
 
 ## Questions to resolve
@@ -131,4 +134,4 @@ It is not production Azure experience. For anything covered only as theory, say 
 | Date | What happened |
 |---|---|
 | 2026-11-06 | Accounts and Phase 0 code set up |
-| 2026-11-07 | Phase 0 finished and merged. Silver trades, latest status and Silver ledger built. Plan changed for the interview. Gold, `MERGE`, tests and CI finished and merged. Data quality framework written. |
+| 2026-11-07 | Phase 0 finished and merged. Silver trades, latest status and Silver ledger built. Plan changed for the interview. Gold, `MERGE`, tests and CI finished and merged. Data quality framework run in Databricks: 61 of 61 defects caught, 3 of 3 reconciliation checks passed. |
