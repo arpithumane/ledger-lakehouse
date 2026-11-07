@@ -1,7 +1,8 @@
 """Pure Silver transformations: each takes DataFrames and returns a DataFrame, so tests need no tables."""
 from pyspark.sql import DataFrame, Window, functions as F
 
-EVENT_KEY = ["trade_id", "trade_ts", "status"]
+#EVENT_KEY = ["trade_id", "trade_ts", "status"]
+EVENT_KEY = ["trade_id"]
 
 TRADE_TYPES = {"trade_ts": "timestamp", "quantity": "int", "price": "decimal(18,4)"}
 
