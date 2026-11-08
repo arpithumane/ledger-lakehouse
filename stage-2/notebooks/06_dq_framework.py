@@ -1,4 +1,11 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# dependencies = [
+#   "pyyaml==6.0.2",
+# ]
+# ///
 # MAGIC %md
 # MAGIC # 06 - Rule-driven data quality and reconciliation
 # MAGIC **Ab Initio mapping:** a generic graph driven by a parameter set. The rules live in
@@ -39,6 +46,17 @@ display(spark.sql(f"""
   GROUP BY rule_id
   ORDER BY rule_id
 """))
+
+# COMMAND ----------
+
+print(f'{"query" in config["rules"][6]}')
+
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC select rule_id, count(1) from workspace.silver.quarantine group by rule_id
 
 # COMMAND ----------
 

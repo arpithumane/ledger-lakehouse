@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 05 - Incremental load with MERGE (lab)
 # MAGIC **Ab Initio mapping:** Join the new batch to the target on the key, then send matched records
