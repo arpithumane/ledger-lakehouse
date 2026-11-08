@@ -47,16 +47,7 @@ display(spark.sql(f"""
   ORDER BY rule_id
 """))
 
-# COMMAND ----------
 
-print(f'{"query" in config["rules"][6]}')
-
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC
-# MAGIC select rule_id, count(1) from workspace.silver.quarantine group by rule_id
 
 # COMMAND ----------
 
