@@ -51,14 +51,19 @@ Branch: `phase-2-dq`. Code is in `stage-2/`. Runs from a Databricks Git folder; 
 - [x] Reconciliation report: 3 of 3 checks pass, including the 7,806.44 ledger imbalance
 - [x] Check every planted defect is caught: 61 planted, 61 caught, 0 missed, 0 extra
 - [x] Design and add new rules yourself: invalid `side` and `status`, keyed on `trade_id` and catching NULLs
-- [ ] Merge `phase-2-dq`
+- [x] Merge `phase-2-dq`
 
 ## Sunday 2026-11-08: labs, theory and practice (about 7-9 hours)
 
 ### Hands-on labs
 Check each lab runs on Free Edition first. If it doesn't, cover it as theory instead.
-- [ ] Declarative Pipeline with expectations: rebuild one Silver table (45 min)
-- [ ] Workflows job: chain notebooks with dependencies and a retry (30 min)
+- [x] Declarative Pipeline with expectations: 6,575 written, 16 dropped, 11 flagged but kept (done Saturday evening)
+- [x] Workflows job `ledger_daily`: 5 tasks with real dependencies, a retry, and a repair run after a failure (done Saturday evening)
+- [ ] Pipeline deep-dive (45 min): rebuild `trades_latest` with `AUTO CDC`
+  - [ ] SCD Type 1 on key `trade_id`, ordered by `trade_ts`; compare with your own `trades_latest` (6,280 rows: 5,972 NEW, 184 AMEND, 124 CANCEL)
+  - [ ] Switch to SCD Type 2 and look at the history it builds
+  - [ ] Cover streaming tables vs materialized views, development vs production mode, and the event log
+  - [ ] Interview answer: when to hand-write `MERGE` and when to use `AUTO CDC`
 - [ ] Profiling, overlap query and a short source-to-target mapping (45 min)
 - [ ] Read an `EXPLAIN` or query profile for a join (30 min)
 - [ ] Convert a small made-up Ab Initio transform to PySpark with Claude, plus a test (30 min)
@@ -68,7 +73,7 @@ Check each lab runs on Free Edition first. If it doesn't, cover it as theory ins
   - [ ] Define metrics such as notional and live trade count (semantic layer)
   - [ ] Build a read-only agent
   - [ ] Test it with a fixed set of questions with known answers
-- [ ] Optional: connect VS Code with the Databricks extension (30 min). Drop this first if time is short, then shrink the conversion lab.
+- [ ] Dropped for time: connect VS Code with the Databricks extension. Covered by the Databricks Connect theory item instead.
 
 ### Theory (60-90 min)
 - [ ] ADF compared with Workflows and Control>Center
@@ -77,7 +82,7 @@ Check each lab runs on Free Edition first. If it doesn't, cover it as theory ins
 - [ ] Cost control: what drives cost and how to monitor it
 - [ ] Knowledge graph, and how it relates to the semantic and context layers
 - [ ] Databricks compared with Snowflake
-- [ ] dbt compared with Declarative Pipelines
+- [ ] dbt compared with Declarative Pipelines (short, since the deep-dive covers pipelines)
 - [ ] Promotion path: pull request, tests, merge, deploy to dev, promote to prod (design only; Free Edition has no separate prod)
 - [ ] Databricks Connect: when you'd use it
 
@@ -124,11 +129,13 @@ It is not production Azure experience. For anything covered only as theory, say 
 | CI catches a real bug | Changing the dedup key to `trade_id` turned the pull request red; reverting it turned it green | Tests encode what you've learned, so the mistake can't return unnoticed |
 | Every defect caught | YAML-driven rules quarantined 61 of 61 planted defects; the ledger imbalance reconciled to the cent | Prove a framework against a known answer key |
 | A passing rule disappears | Rules with 0 failures didn't appear in the summary, so you can't tell "passed" from "never ran" | Report every rule, including zero counts |
+| Expectations vs quarantine | The pipeline dropped 16 rows but only kept counts; the framework keeps every failing record and its reason | Use expectations to monitor and gate, and quarantine when failing rows must be traced and fixed |
+| Retry vs repair | `dq_checks` failed on a code bug, so the retry failed the same way; after the fix, a repair run reran only that task | Retries are for temporary failures; bugs need a fix and a repair run |
 | Strings in bronze | Bronze keeps raw strings; Silver uses `try_cast` and counts failures | Capture must not fail or silently lose values |
 
 ## Questions to resolve
 - [ ] What does "Avery reporting" refer to? Ask the recruiter if possible.
-- [ ] How many hours are available this weekend? If time is short, shrink the data quality framework first and keep the mock interview.
+- [x] Hours available: Saturday afternoon plus 2-4 hours in the evening; Sunday about 5-7 hours.
 
 ## Session log
 | Date | What happened |
