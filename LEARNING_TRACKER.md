@@ -53,7 +53,16 @@ Branch: `phase-2-dq`. Code is in `stage-2/`. Runs from a Databricks Git folder; 
 - [x] Design and add new rules yourself: invalid `side` and `status`, keyed on `trade_id` and catching NULLs
 - [x] Merge `phase-2-dq`
 
-## Sunday 2026-11-08: labs, theory and practice (about 7-9 hours)
+## Sunday 2026-11-08: basics, labs, theory and practice (about 7-8 hours)
+
+### First: Databricks basics drill (60-75 min)
+Rapid questions you should answer without thinking. Anything shaky gets a short explanation, then gets asked again later.
+- [ ] Workspace: notebooks, Git folders, repos, secrets, service principals
+- [ ] Compute: all-purpose vs job clusters vs serverless, SQL warehouses, Photon, autoscaling, DBUs
+- [ ] Unity Catalog: metastore, catalog.schema.table, managed vs external tables, volumes, grants, lineage
+- [ ] Delta Lake: transaction log, ACID, time travel, `OPTIMIZE`, `VACUUM`, liquid clustering and Z-order, schema enforcement and evolution, change data feed
+- [ ] Spark: driver and executors, partitions, transformations vs actions, shuffles, broadcast joins, caching
+- [ ] Ingestion and orchestration: Auto Loader, `COPY INTO`, jobs, pipelines, medallion layers
 
 ### Hands-on labs
 Check each lab runs on Free Edition first. If it doesn't, cover it as theory instead.
@@ -65,7 +74,7 @@ Check each lab runs on Free Edition first. If it doesn't, cover it as theory ins
   - [ ] Cover streaming tables vs materialized views, development vs production mode, and the event log
   - [ ] Interview answer: when to hand-write `MERGE` and when to use `AUTO CDC`
 - [ ] Profiling, overlap query and a short source-to-target mapping (45 min)
-- [ ] Read an `EXPLAIN` or query profile for a join (30 min)
+- [ ] Read an `EXPLAIN` or query profile for a join (15 min, folded into the Spark tuning theory if time is short)
 - [ ] Convert a small made-up Ab Initio transform to PySpark with Claude, plus a test (30 min)
 - [ ] Asset Bundle: deploy one notebook as a job to a `dev` target (45 min)
 - [ ] Agent over Gold (90 min), after checking what Free Edition allows; ask before anything that costs money
