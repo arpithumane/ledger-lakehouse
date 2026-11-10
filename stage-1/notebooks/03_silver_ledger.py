@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 03 - Silver ledger entries: apply types and remove true duplicates
 # MAGIC **Ab Initio mapping:** input table -> Reformat (apply the real DML) -> Dedup Sorted -> output table.
