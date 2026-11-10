@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %md
 # MAGIC # 02 - Silver trades latest: one row per trade, showing its current state
 # MAGIC **Ab Initio mapping:** Sort on trade_id + trade_ts descending -> Dedup Sorted keeping the first row.
