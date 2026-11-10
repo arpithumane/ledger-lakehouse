@@ -57,31 +57,33 @@ Branch: `phase-2-dq`. Code is in `stage-2/`. Runs from a Databricks Git folder; 
 
 ### First: Databricks basics drill (60-75 min)
 Rapid questions you should answer without thinking. Anything shaky gets a short explanation, then gets asked again later.
-- [ ] Workspace: notebooks, Git folders, repos, secrets, service principals
-- [ ] Compute: all-purpose vs job clusters vs serverless, SQL warehouses, Photon, autoscaling, DBUs
-- [ ] Unity Catalog: metastore, catalog.schema.table, managed vs external tables, volumes, grants, lineage
-- [ ] Delta Lake: transaction log, ACID, time travel, `OPTIMIZE`, `VACUUM`, liquid clustering and Z-order, schema enforcement and evolution, change data feed
-- [ ] Spark: driver and executors, partitions, transformations vs actions, shuffles, broadcast joins, caching
-- [ ] Ingestion and orchestration: Auto Loader, `COPY INTO`, jobs, pipelines, medallion layers
+- [~] Workspace: notebooks, Git folders, repos, secrets, service principals (re-ask Git folders vs Repos, why a Git folder, service principals)
+- [x] Compute: all-purpose vs job clusters vs serverless, SQL warehouses, Photon, autoscaling, DBUs
+- [x] Unity Catalog: metastore, catalog.schema.table, managed vs external tables, volumes, grants, lineage
+- [~] Delta Lake: transaction log, ACID, time travel, `OPTIMIZE`, `VACUUM`, liquid clustering and Z-order, schema enforcement and evolution, change data feed (re-ask `RESTORE` version, `OPTIMIZE` vs `VACUUM`, why cluster not partition, change data feed mechanics)
+- [x] Spark: driver and executors, partitions, transformations vs actions, shuffles, broadcast joins, caching
+- [x] Ingestion and orchestration: Auto Loader, `COPY INTO`, jobs, pipelines, medallion layers
 
 ### Hands-on labs
 Check each lab runs on Free Edition first. If it doesn't, cover it as theory instead.
 - [x] Declarative Pipeline with expectations: 6,575 written, 16 dropped, 11 flagged but kept (done Saturday evening)
 - [x] Workflows job `ledger_daily`: 5 tasks with real dependencies, a retry, and a repair run after a failure (done Saturday evening)
-- [ ] Pipeline deep-dive (45 min): rebuild `trades_latest` with `AUTO CDC`
-  - [ ] SCD Type 1 on key `trade_id`, ordered by `trade_ts`; compare with your own `trades_latest` (6,280 rows: 5,972 NEW, 184 AMEND, 124 CANCEL)
-  - [ ] Switch to SCD Type 2 and look at the history it builds
-  - [ ] Cover streaming tables vs materialized views, development vs production mode, and the event log
-  - [ ] Interview answer: when to hand-write `MERGE` and when to use `AUTO CDC`
-- [ ] Profiling, overlap query and a short source-to-target mapping (45 min)
-- [ ] Read an `EXPLAIN` or query profile for a join (15 min, folded into the Spark tuning theory if time is short)
+- [x] Pipeline deep-dive (45 min): rebuild `trades_latest` with `AUTO CDC`
+  - [x] SCD Type 1 on key `trade_id`, ordered by `trade_ts`; compare with your own `trades_latest` (6,280 rows: 5,972 NEW, 184 AMEND, 124 CANCEL)
+  - [x] Switch to SCD Type 2 and look at the history it builds
+  - [x] Cover streaming tables vs materialized views, development vs production mode, and the event log
+  - [x] Interview answer: when to hand-write `MERGE` and when to use `AUTO CDC`
+- [~] Profiling, overlap query and a short source-to-target mapping (45 min) (profile and overlap done: 6,280 in both, 0 trades only, 15 ledger only; mapping not written)
+- [ ] Read an `EXPLAIN` or query profile for a join (not run; moved into the Spark tuning theory on 2026-11-08)
 - [ ] Convert a small made-up Ab Initio transform to PySpark with Claude, plus a test (30 min)
 - [ ] Asset Bundle: deploy one notebook as a job to a `dev` target (45 min)
-- [ ] Agent over Gold (90 min), after checking what Free Edition allows; ask before anything that costs money
-  - [ ] Add table and column comments (context layer)
-  - [ ] Define metrics such as notional and live trade count (semantic layer)
-  - [ ] Build a read-only agent
-  - [ ] Test it with a fixed set of questions with known answers
+- [x] Agent over Gold (about 2 hours), on Free Edition (Genie, Playground and LLM models confirmed visible); ask before anything that costs money
+  - [x] Intro: Mosaic AI and Agent Bricks, Genie vs custom agents, tools, governance, evaluation
+  - [x] Add table and column comments (context layer)
+  - [x] Define metrics such as notional and live trade count (semantic layer)
+  - [x] Create a read-only Genie agent over Gold
+  - [x] Create a custom agent that calls a Unity Catalog function as a tool (built in Playground; not exported to code or deployed)
+  - [x] Test both with a fixed set of questions with known answers
 - [ ] Dropped for time: connect VS Code with the Databricks extension. Covered by the Databricks Connect theory item instead.
 
 ### Theory (60-90 min)
@@ -141,6 +143,8 @@ It is not production Azure experience. For anything covered only as theory, say 
 | Expectations vs quarantine | The pipeline dropped 16 rows but only kept counts; the framework keeps every failing record and its reason | Use expectations to monitor and gate, and quarantine when failing rows must be traced and fixed |
 | Retry vs repair | `dq_checks` failed on a code bug, so the retry failed the same way; after the fix, a repair run reran only that task | Retries are for temporary failures; bugs need a fix and a repair run |
 | Strings in bronze | Bronze keeps raw strings; Silver uses `try_cast` and counts failures | Capture must not fail or silently lose values |
+| Valid SQL, wrong answer | Genie summed four currencies into one number with no warning; comments and instructions fixed it, but excluding `XXX` then wrongly cut the trade count from 6,156 to 6,147 | Rerun a fixed question set with known answers after every change |
+| Structure beats prompts | A required `currency` parameter stopped cross-currency sums; the agent still skipped JPY and called it "all" until the prompt was fixed and tests ran in fresh chats; it couldn't delete because it had no delete tool | Enforce limits with tools and permissions; prompts only guide |
 
 ## Questions to resolve
 - [ ] What does "Avery reporting" refer to? Ask the recruiter if possible.
