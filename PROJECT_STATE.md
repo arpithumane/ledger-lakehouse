@@ -1,10 +1,10 @@
 # PROJECT_STATE
 
-Last updated: 2026-11-07 (Phase 1 in progress, plan changed for the interview)
-Update this file at the end of every phase. Start each new Claude chat with:
+Last updated: 2026-11-10 (plan changed after the interview; Stage 1 started)
+Update this file at the end of every stage. Start each new Claude chat with:
 "Continuing ledger-lakehouse. Read LEARNING_TRACKER.md and PROJECT_STATE.md, then continue from the first unticked item."
 
-**Interview on Monday 2026-11-09 (discussion only).** `LEARNING_TRACKER.md` is the active plan until then; `PHASE_PLAN.md` is the longer-term plan.
+**The interview on 2026-11-09 went badly.** `LEARNING_TRACKER.md` now holds a 4-stage plan: PySpark by hand, Azure under $50 for the month, a production-like setup, then production-style failures. It replaces `PHASE_PLAN.md` where they differ.
 
 ## Goal
 Learn Azure Databricks by building a production-style trading-to-general-ledger platform:
@@ -16,7 +16,7 @@ Also meant to line up with a 6-9 year pipeline engineering job description.
 - 10 years Ab Initio; knows basic Python, SQL, Unix. New to Databricks, Spark and Azure.
 - Learning style: explain each concept next to its Ab Initio equivalent, build, then try a variation.
 - Laptop: Mac. One step at a time, but keep up the pace until the interview: skip optional variations.
-- Budget: $20-50 for the first week of Azure learning. Do not exceed without asking.
+- Budget: under $50 for the month of Azure learning. Do not exceed without asking. The owner creates the Azure account and enters payment details themselves.
 
 ## Decisions so far
 | Decision | Choice | Why |
@@ -39,13 +39,18 @@ Also meant to line up with a 6-9 year pipeline engineering job description.
 | Azure before the interview | None | Avoids spend and starting the trial clock |
 | Added to interview scope | Asset Bundle lab to a `dev` target; small agent over Gold | Owner wants agentic AI hands-on; the JD covers CI/CD and data for AI |
 | Way of working | Owner reads and predicts, writes part of each lab, and answers before moving on | Running code and matching numbers wasn't building understanding |
+| Plan after the interview (2026-11-10) | Owner writes all practice code; Claude sets problems and checks answers | The interview showed recognition without recall |
+| Local PySpark | Java 17 from Homebrew and PySpark 4.0.1 in `.venv` | Fast practice with no cluster; tests can run on the Mac |
+| Azure timing | Start Stage 2 only after the Stage 1 exit test | The 14-day Databricks trial should cover Stages 2-4 |
 
 ## Status
 - [x] Phase 0 code written: generator, bronze notebook, README
 - [x] Phase 0 run: generator run on Mac, files uploaded to the landing volume, bronze tables created, checkpoint questions answered
 - [x] Phase 1 essentials: Silver trades, latest status and Silver ledger done; Gold done; `MERGE` lab, tests and CI done and merged. Asset Bundle deferred.
-- [x] Small data quality framework (reduced Phase 2): 61 of 61 defects caught, 3 of 3 reconciliation checks pass. Branch `phase-2-dq`, not yet merged.
-- [ ] Phases 3-7: paused until after the interview; covered by labs and theory in LEARNING_TRACKER.md
+- [x] Small data quality framework (reduced Phase 2): 61 of 61 defects caught, 3 of 3 reconciliation checks pass. Merged to `main`.
+- [x] Interview sprint labs (pipeline, `AUTO CDC`, Workflows, agent): see LEARNING_TRACKER.md
+- [ ] Stage 1, PySpark by hand: in progress on branch `stage-1-pyspark-practice`
+- [ ] Stages 2-4: Azure, production-like, production issues
 
 Bronze row counts (`--days 3 --trades-per-day 2000`): trades_raw 6,597 (6,280 distinct trade_id), ledger_entries_raw 27,114, instruments_raw 200, counterparties_raw 50, gl_accounts_raw 4.
 
@@ -65,7 +70,8 @@ Bronze row counts (`--days 3 --trades-per-day 2000`): trades_raw 6,597 (6,280 di
 - `stage-2/src/dq_framework.py` - runs the rules; has no per-table code
 - `stage-2/notebooks/06_dq_framework.py` - writes `silver.quarantine` and `gold.dq_recon_report`
 - `stage-2/scripts/check_against_manifest.py` - compares the quarantine with the answer key on the Mac
-- `LEARNING_TRACKER.md` - interview plan, hands-on checklist and JD coverage
+- `practice/` - Stage 1 exercises; the owner's own code in `exNN_*.py`, answers in `practice/answers/`
+- `LEARNING_TRACKER.md` - the active 4-stage plan, project stories and session log
 - `stage-0/data/manifest/injected_defects.csv` - answer key for planted bad records. Never upload to Databricks.
 
 ## Planted defect types (answer key)
@@ -74,12 +80,10 @@ Phase 2 DQ rules must catch all of them.
 
 ## Open questions / issues
 - GitHub pushes need a personal access token; it's saved in Keychain after the first push.
-- No Java on the Mac, so PySpark tests run only in GitHub Actions.
 - Notebooks still have their own copies of the logic in `stage-1/src/transforms.py`. So tests prove the module, not the notebooks, until the notebooks import it.
 - Pushing workflow files needs a GitHub token with the `workflow` scope.
 - The `MERGE` lab only detects changes in 4 columns, so a change to another column such as `desk` would not update the row.
 - `gold.daily_desk_summary` still contains bad rows (`XXX` currency, negative quantities) until the data quality framework exists.
-- What does "Avery reporting" in the job description refer to?
 
 ## What the owner has learned
 Phase 0:
